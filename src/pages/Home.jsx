@@ -1,10 +1,14 @@
+import { Stack } from '@mantine/core'
+import Post from '../components/Post';
 
 
 const Home = () => {
     return (
-        <div>
-            home
-        </div>
+        <Stack p={"xs"} gap={"md"}>
+            {Array.from({ length: 15 }).map((_, index) => (
+                <Post key={index} />
+            ))}
+        </Stack>
     );
 }
 

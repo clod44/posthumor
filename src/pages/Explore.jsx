@@ -1,8 +1,8 @@
+import GridGallery from "../components/GridGallery";
+
 const Explore = () => {
     return (
-        <div>
-            explore
-        </div>
+        <GridGallery />
     );
 }
 

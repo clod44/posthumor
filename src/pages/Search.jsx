@@ -1,8 +1,18 @@
+import { Center, TextInput } from "@mantine/core";
+import { FaSearch } from "react-icons/fa";
+
+
 const Search = () => {
     return (
-        <div>
-            search
-        </div>
+        <>
+            <Center>
+                <TextInput
+                    placeholder="..."
+                    rightSectionPointerEvents="none"
+                    rightSection={<FaSearch />}
+                />
+            </Center>
+        </>
     );
 }
 
