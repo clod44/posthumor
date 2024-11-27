@@ -28,7 +28,7 @@ function App() {
                 header={{ height: 60 }}
                 footer={{ height: 60 }}
                 navbar={{ width: 200, breakpoint: 'sm', collapsed: { mobile: !opened } }}
-                padding="md"
+                padding={{ base: 5, sm: "sm" }}
             >
                 <AppShell.Header>
                     <Header opened={opened} toggle={toggle} />
