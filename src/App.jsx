@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { AppShell } from '@mantine/core';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import ProtectedRoute from './components/ProtectedRoute';
 
 import Header from './components/Header';
 import SideNav from './components/SideNav';
@@ -42,12 +43,12 @@ function App() {
                         <Route path="/" element={<Home />} />
                         <Route path="/search" element={<Search />} />
                         <Route path="/explore" element={<Explore />} />
-                        <Route path="/messages" element={<Messages />} />
-                        <Route path="/notifications" element={<Notifications />} />
-                        <Route path="/create" element={<Create />} />
-                        <Route path="/login" element={<Login />} />
-                        <Route path="/profile" element={<Profile />} />
-                        <Route path="/settings" element={<Settings />} />
+                        <Route path="/messages" element={<ProtectedRoute redirect='/login' element={<Messages />} />} />
+                        <Route path="/notifications" element={<ProtectedRoute redirect='/login' element={<Notifications />} />} />
+                        <Route path="/create" element={<ProtectedRoute redirect='/login' element={<Create />} />} />
+                        <Route path="/login" element={<ProtectedRoute redirect='/profile' redirectIfUserLoggedIn={true} element={<Login />} />} />
+                        <Route path="/profile" element={<ProtectedRoute redirect='/login' element={<Profile />} />} />
+                        <Route path="/settings" element={<ProtectedRoute redirect='/login' element={<Settings />} />} />
                         <Route path="*" element={<NotFound />} />
                     </Routes>
                 </AppShell.Main>
