@@ -107,6 +107,7 @@ export const UserProvider = ({ children }) => {
                 loginWithEmail,
                 anonymousLogin,
                 googlePopupLogin,
+                logout
             }}
         >
             <Box pos="relative">
