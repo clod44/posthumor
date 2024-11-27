@@ -86,6 +86,17 @@ export const UserProvider = ({ children }) => {
         }
     };
 
+    const logout = async () => {
+        setLoading(true);
+        try {
+            await auth.signOut();
+        } catch (error) {
+            console.error("Error during logout:", error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <UserContext.Provider
             value={{
