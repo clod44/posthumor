@@ -26,7 +26,6 @@ function App() {
         <Router>
             <AppShell
                 header={{ height: 60 }}
-                footer={{ height: 60 }}
                 navbar={{ width: 200, breakpoint: 'sm', collapsed: { mobile: !opened } }}
                 padding={{ base: 5, sm: "sm" }}
             >
@@ -52,10 +51,6 @@ function App() {
                         <Route path="*" element={<NotFound />} />
                     </Routes>
                 </AppShell.Main>
-
-                <AppShell.Footer p="md">
-                    <Footer />
-                </AppShell.Footer>
             </AppShell>
         </Router>
     );
