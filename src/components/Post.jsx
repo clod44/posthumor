@@ -1,86 +1,87 @@
-import { Group, Image, Text, Avatar, Button, Card, } from '@mantine/core';
+import { Avatar, Button, Image } from "@nextui-org/react";
 import { IoMdMore } from "react-icons/io";
-import { IoSend } from "react-icons/io5";
-import { FaHeart, FaComment, FaBookmark } from "react-icons/fa";
+import { FiSend } from "react-icons/fi";
+import { FaRegHeart, FaRegComment, FaRegBookmark } from "react-icons/fa";
 
 const Post = () => {
     return (
-        <Card shadow="sm" padding="xs" radius="md" withBorder>
-            <Group className='h-10 mb-2'>
+        <div className="overflow-hidden">
+            <div className="flex items-center gap-2 p-2">
                 <Avatar
-                    className="w-auto h-full aspect-square"
-                    src="https://thispersondoesnotexist.com/"
+                    size="sm"
+                    src={"https://i.pravatar.cc/150?u=" + Math.random()}
                 />
-                <Text className='flex-grow' size='md'>
-                    Joshua Bilboard
-                </Text>
-
+                <p className="flex-grow font-bold text-small">Joshua Hernandez</p>
                 <Button
-                    variant='subtle'
-                    color='default'
-                    size='sm'
-                    p={"xs"}
-                    className='aspect-square h-full'
+                    isIconOnly
+                    size="sm"
+                    className="p-2"
+                    variant="light"
                 >
-                    <IoMdMore className='size-10' />
+                    <IoMdMore className="w-full h-full" />
                 </Button>
-            </Group>
-            <Card.Section>
+            </div>
+            <div className="w-full h-full aspect-[4/3] overflow-hidden">
+
                 <Image
-                    className='aspect-4/3 w-full h-auto'
-                    src={`https://picsum.photos/500/500?random=${Math.random()}`}
+                    src={"https://picsum.photos/800/600?random=" + Math.random()}
+                    width={"100%"}
+                    height={"100%"}
+                    radius="none"
+                    loading="lazy"
                 />
-            </Card.Section>
-            <Group className='h-10 mb-2' gap="xs">
-                <Button
-                    variant='subtle'
-                    color='red'
-                    size='sm'
-                    p={"xs"}
-                    className='h-full w-auto'
-                >
-                    <FaHeart className='size-5 me-1' />
-                    1.4k
-                </Button>
-                <Button
-                    variant='subtle'
-                    color='default'
-                    size='sm'
-                    p={"xs"}
-                    className='h-full w-auto'
-                >
-                    <FaComment className='size-5 me-1' />
-                    427
-                </Button>
-                <Button
-                    variant='subtle'
-                    color='default'
-                    size='sm'
-                    p={"xs"}
-                    className='h-full w-auto'
-                >
-                    <IoSend className='size-5 me-1' />
-                    24
-                </Button>
-                <div className='flex-grow' />
-                <Button
-                    variant='subtle'
-                    color='default'
-                    size='sm'
-                    p={"xs"}
-                    className='aspect-square h-full'
-                >
-                    <FaBookmark className='size-10' />
-                </Button>
 
-            </Group>
-            <Text size="sm" lineClamp={2}>
-                <span className='font-bold me-1'>joshua69</span> With Fjord Tours you can explore more of the magical fjord landscapes with tours and
-                activities on and around the fjords of Norway
-            </Text>
-            <Text size='xs' c={'dimmed'} pt={'xs'}>1 hour ago</Text>
+            </div>
+            <div className="px-2 py-1">
+                <div className="flex justify-between items-center">
+                    <Button
+                        size="sm"
+                        className="p-2 px-0"
+                        variant="light"
+                        startContent={<FaRegHeart className="w-auto h-full aspect-square" />}
+                    >
+                        1,996
 
-        </Card>
+                    </Button>
+                    <Button
+                        size="sm"
+                        className="p-2 px-0"
+                        variant="light"
+                        startContent={<FaRegComment className="w-auto h-full aspect-square" />}
+                    >
+                        6
+                    </Button>
+
+                    <Button
+                        isIconOnly
+                        size="sm"
+                        className="p-2 px-0"
+                        variant="light"
+                        startContent={<FiSend className="w-auto h-full aspect-square" />}
+                    >
+                    </Button>
+
+                    <div className="flex-grow" />
+
+                    <Button
+                        isIconOnly
+                        size="sm"
+                        className="p-2"
+                        variant="light"
+                        startContent={<FaRegBookmark className="w-auto h-full aspect-square" />}
+                    >
+                    </Button>
+                </div>
+
+                <div className="p-2">
+                    <p className="text-small">
+                        <span className="font-bold me-2">joshua61</span>
+                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor aperiam adipisci consequuntur. Omnis reiciendis debitis in velit? Asperiores voluptate architecto quae voluptas debitis saepe expedita!
+                    </p>
+                    <p className="text-tiny text-foreground-300">1 hour ago</p>
+                </div>
+            </div>
+        </div>
 
     );
 }

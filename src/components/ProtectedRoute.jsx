@@ -2,18 +2,15 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
-import { Box, Center, Loader } from '@mantine/core';
 
 const ProtectedRoute = ({ redirect = "/", redirectIfUserLoggedIn = false, element }) => {
     const { user, authLoading } = useUser();
 
     if (authLoading) {
         return (
-            <Center>
-                <Box>
-                    <Loader />
-                </Box>
-            </Center>
+            <div className='fixed top-0 left-0 w-full h-screen z-[999]'>
+                loading
+            </div>
         );
     }
     if ((redirectIfUserLoggedIn && user) || (!redirectIfUserLoggedIn && !user)) {

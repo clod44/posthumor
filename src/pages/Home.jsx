@@ -1,14 +1,14 @@
-import { Stack } from '@mantine/core'
 import Post from '../components/Post';
-
 
 const Home = () => {
     return (
-        <Stack p={"xs"} gap={"md"}>
+        <div className='flex flex-col items-center p-2 py-5 gap-5'>
             {Array.from({ length: 15 }).map((_, index) => (
-                <Post key={index} />
+                <div className='w-full sm:w-1/2'>
+                    <Post key={index} />
+                </div>
             ))}
-        </Stack>
+        </div>
     );
 }
 

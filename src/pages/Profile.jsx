@@ -1,77 +1,97 @@
 import { useUser } from "../context/UserContext";
 import { IoMdLogOut } from "react-icons/io";
-import { Card, Grid, SimpleGrid, Stack, Text, Tabs, Button, Group, Image, Avatar, Center } from '@mantine/core';
+import { Image, Button, Tab, Tabs } from "@nextui-org/react";
 import GridGallery from "../components/GridGallery";
+import { MdGridOn } from "react-icons/md";
+import { FaBookmark } from "react-icons/fa6";
 
 const Profile = () => {
     const { user, logout } = useUser();
     console.log(user)
     return (
         <>
-            <Card shadow="md" p={"lg"} radius="md" withBorder>
-                <Grid mb={"md"} h={200}>
-                    <Grid.Col span={{ base: 4, sm: 4, md: 3 }} h={200}>
-                        <Avatar
-                            className="w-full h-auto"
-                            src="https://thispersondoesnotexist.com/"
-                        />
-                    </Grid.Col>
+            <div className="w-full min-h-svh flex flex-col justify-start items-center">
+                <div className="w-full flex flex-col sm:w-1/2">
+                    <div className="p-5 pb-0">
 
-                    <Grid.Col span={"auto"} h={"100%"}>
-                        <Stack>
-                            <Grid>
-                                <Grid.Col span={"auto"}>
-                                    <Text size="xl" weight={500}>
-                                        {user?.displayName ?? "No Name"}
-                                    </Text>
-                                </Grid.Col>
-                                <Grid.Col span={{ base: 4, sm: 4, md: 3 }}>
+                        <div className="grid grid-cols-4 mb-4 gap-4">
+                            <Image
+                                src={"https://i.pravatar.cc/150?u=" + Math.random()}
+                                className="rounded-full"
+                            />
+                            <div className="col-span-3 flex flex-col text-center">
+                                <div className="flex justify-between items-center mb-2">
+                                    <h2 className="font-bold text-xl sm:text-4xl flex-grow">@moangusss</h2>
                                     <Button
-                                        w={"100%"}
-                                        h={"100%"}
-                                        size="xs"
-                                        color="red"
-                                        variant="subtle"
+                                        isIconOnly
+                                        color="danger"
+                                        className="p-2"
+                                        variant="light"
                                         onClick={logout}
                                     >
-                                        <IoMdLogOut size={20} />
+                                        <IoMdLogOut className="w-full h-full" />
                                     </Button>
-                                </Grid.Col>
-                            </Grid>
-                            <SimpleGrid cols={3}>
-                                <Text size="xs" c="dimmed" className="text-nowrap">
-                                    128 posts
-                                </Text>
-                                <Text size="xs" c="dimmed" className="text-nowrap">
-                                    1.2k followers
-                                </Text>
-                                <Text size="xs" c="dimmed" className="text-nowrap">
-                                    486 following
-                                </Text>
-                            </SimpleGrid>
+                                </div>
+                                <div className="grid grid-cols-3 px-4">
+                                    <div>
+                                        <p className="font-bold sm:text-2xl">970</p>
+                                        <p className="text-tiny text-foreground-200"> posts</p>
+                                    </div>
 
+                                    <div>
+                                        <p className="font-bold sm:text-2xl">164K</p>
+                                        <p className="text-tiny text-foreground-200"> followers</p>
+                                    </div>
 
-                            <Text size="sm" lineClamp={3}>
-                                Lorem ipsum dolor sit amet consectetur adipisicing elit. Est maiores sunt harum eveniet ab modi facilis, unde maxime pariatur porro! Quaerat inventore doloremque laborum nihil quasi cum voluptatum illo nulla ex, sapiente dicta est atque qui voluptate. Quaerat perferendis recusandae est reiciendis sed adipisci itaque perspiciatis repellendus rem earum. Dolorum quos reprehenderit odio earum atque facere doloremque veniam deleniti, inventore ex asperiores, eligendi officiis nesciunt hic voluptates repellat perspiciatis qui molestiae quibusdam provident esse autem aliquid. Velit iste facere quisquam excepturi nam accusamus porro neque quia repudiandae! Non, molestiae, excepturi debitis ea enim vero nesciunt, est tempora nobis suscipit dignissimos?
-                            </Text>
-                        </Stack>
-                    </Grid.Col>
-                </Grid>
+                                    <div>
+                                        <p className="font-bold sm:text-2xl">1,441</p>
+                                        <p className="text-tiny text-foreground-200"> following</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex flex-col gap-2">
 
-                <Tabs defaultValue="posts" inverted>
-                    <Tabs.List justify="center" mb={"xs"}>
-                        <Tabs.Tab value="posts">Posts</Tabs.Tab>
-                        <Tabs.Tab value="saved">Saved</Tabs.Tab>
-                        <Tabs.Tab value="liked">Liked</Tabs.Tab>
-                    </Tabs.List>
+                            <h2 className="font-bold">Joshua Hernandez</h2>
+                            <p className="text-tiny text-foreground-500">Lorem ipsum dolor sit amet consectetur adipisicing elit. Odit delectus quasi ipsam et rem atque quam ducimus, fuga facere beatae culpa in necessitatibus, cupiditate magni.</p>
 
-                    <Tabs.Panel value="posts" pb="xs">
-                        <GridGallery user={user} />
-                    </Tabs.Panel>
-                    <Tabs.Panel value="saved" pb="xs">Saved</Tabs.Panel>
-                    <Tabs.Panel value="liked" pb="xs">Liked</Tabs.Panel>
-                </Tabs>
-            </Card >
+                            <div className="grid grid-cols-2 mt-2 gap-2">
+                                <Button
+                                    size="sm"
+                                    className="font-bold"
+                                >
+                                    Follow
+                                </Button>
+                                <Button
+                                    size="sm"
+                                    className="font-bold"
+                                >
+                                    Message
+                                </Button>
+                            </div>
+
+                        </div>
+                    </div>
+                    <Tabs
+                        fullWidth
+                        variant="underlined"
+                    >
+
+                        <Tab
+                            key="posts"
+                            title={<MdGridOn className="text-xl" />}
+                        >
+                            <GridGallery user={user} showOverlay={false} />
+                        </Tab>
+                        <Tab
+                            key="saved"
+                            title={<FaBookmark className="text-xl" />}
+                        >
+                            <GridGallery user={user} showOverlay={false} />
+                        </Tab>
+                    </Tabs>
+                </div>
+            </div >
         </>
     );
 }

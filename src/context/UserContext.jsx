@@ -9,8 +9,6 @@ import {
     onAuthStateChanged,
 } from "firebase/auth";
 
-import { Box, LoadingOverlay } from '@mantine/core';
-
 const UserContext = createContext();
 
 export const useUser = () => useContext(UserContext);
@@ -110,15 +108,12 @@ export const UserProvider = ({ children }) => {
                 logout
             }}
         >
-            <Box pos="relative">
-                <LoadingOverlay
-                    visible={authLoading}
-                    zIndex={1000}
-                    overlayProps={{ blur: 2 }}
-                    loaderProps={{ size: "xl", type: "dots" }}
-                />
-                {children}
-            </Box>
+            {authLoading &&
+                <div className="fixed w-full h-screen z-[99999] bg-background/25">
+                    loadinggggg....
+                </div>
+            }
+            {children}
         </UserContext.Provider>
     );
 };
