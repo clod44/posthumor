@@ -8,6 +8,7 @@ import {
     signInWithEmailAndPassword,
     onAuthStateChanged,
 } from "firebase/auth";
+import { Spinner } from "@nextui-org/react";
 
 const UserContext = createContext();
 
@@ -109,8 +110,8 @@ export const UserProvider = ({ children }) => {
             }}
         >
             {authLoading &&
-                <div className="fixed w-full h-screen z-[99999] bg-background/25">
-                    loadinggggg....
+                <div className="fixed w-full h-screen z-[99999] bg-background/50 backdrop-blur-sm flex items-center justify-center">
+                    <Spinner size="xl" color="default" />
                 </div>
             }
             {children}
