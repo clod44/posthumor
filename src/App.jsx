@@ -24,7 +24,10 @@ function App() {
                 <Route path="/notifications" element={<ProtectedRoute redirect='/login' element={<Notifications />} />} />
                 <Route path="/create" element={<ProtectedRoute redirect='/login' element={<Create />} />} />
                 <Route path="/login" element={<ProtectedRoute redirect='/profile' redirectIfUserLoggedIn={true} element={<Login />} />} />
-                <Route path="/profile" element={<ProtectedRoute redirect='/login' element={<Profile />} />} />
+                <Route
+                    path="/profile/:username?"
+                    element={<ProtectedRoute redirect='/login' element={<Profile />} />}
+                />
                 <Route path="/settings" element={<ProtectedRoute redirect='/login' element={<Settings />} />} />
                 <Route path="*" element={<NotFound />} />
             </Routes>

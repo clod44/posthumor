@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { auth } from "../config/firebase";
+import { auth, db } from "../config/firebase";
 import {
     GoogleAuthProvider,
     signInWithPopup,
@@ -8,6 +8,7 @@ import {
     signInWithEmailAndPassword,
     onAuthStateChanged,
 } from "firebase/auth";
+import { runTransaction, doc, getDoc, setDoc } from "firebase/firestore";
 import { Spinner } from "@nextui-org/react";
 
 const UserContext = createContext();
@@ -16,6 +17,7 @@ export const useUser = () => useContext(UserContext);
 
 export const UserProvider = ({ children }) => {
     const [user, setUser] = useState(null);
+    const [userData, setUserData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [authLoading, setAuthLoading] = useState(true);
 
@@ -24,15 +26,115 @@ export const UserProvider = ({ children }) => {
             setUser(currentUser);
             setAuthLoading(false);
         });
-
         return () => unsubscribe();
     }, []);
+
+    useEffect(() => {
+        if (user) {
+            refreshUserData();
+        }
+    }, [user]);
+
+    /**
+     * fetch updated userData of logged-in user.
+     * updates the userData state.
+     */
+    const refreshUserData = async () => {
+        if (!user) {
+            console.log("No user logged in. userData could not be refreshed.");
+            return;
+        };
+        const data = await getUserData(user.uid);
+        setUserData(data);
+        console.log(data)
+    };
+
+    /**
+     * @param {string} userId - The unique identifier of the user.
+     * @returns {Promise<object|null>} - The user data object with all properties or null if user is not found.
+     */
+    const getUserData = async (userId) => {
+        setLoading(true);
+        const userRef = doc(db, "users", userId);
+        try {
+            const userDoc = await getDoc(userRef);
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                const uid = userDoc.id;
+                return { ...userData, uid };
+            } else {
+                console.log("User not found.");
+                return null;
+            }
+        } catch (error) {
+            console.error("Error fetching user data:", error);
+            return null;
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const getUserDataWithUsername = async (username) => {
+        const usersRef = collection(db, "users");
+        try {
+            const q = query(usersRef, where("username", "==", username));
+            const querySnapshot = await getDocs(q);
+
+            if (!querySnapshot.empty) {
+                const userDoc = querySnapshot.docs[0];
+                const userData = userDoc.data();
+                const uid = userDoc.id;
+                return { ...userData, uid };
+            } else {
+                console.log("User not found.");
+                return null;
+            }
+        } catch (error) {
+            console.error("Error fetching user data by username:", error);
+            return null;
+        }
+    };
+
+
+    /**
+     * if needed, creates initial userData in the database
+     * @param {string} userId
+     */
+    const ensureUserDataInitialized = async (userId) => {
+        console.log("Initializing user data..." + userId);
+        const userRef = doc(db, "users", userId);
+        try {
+            await runTransaction(db, async (transaction) => {
+                const userDoc = await transaction.get(userRef);
+
+                if (userDoc.exists()) {
+                    return;
+                }
+
+                const newUserData = {
+                    bio: "",
+                    displayName: "User",
+                    profilePicture: "",
+                    totalFollowers: 0,
+                    totalFollowing: 0,
+                    totalPosts: 0,
+                    username: userId,
+                };
+                transaction.set(userRef, newUserData);
+            });
+        } catch (error) {
+            console.error("Error initializing user data:", error);
+            alert("Error initializing user data: " + error.message);
+        }
+    };
+
 
     const registerWithEmail = async (email, password) => {
         setLoading(true);
         let success = true;
         try {
             await createUserWithEmailAndPassword(auth, email, password);
+            await ensureUserDataInitialized(auth.currentUser?.uid);
         } catch (error) {
             console.error("Error during registration:", error.message);
             success = false;
@@ -41,6 +143,7 @@ export const UserProvider = ({ children }) => {
             return success;
         }
     };
+
 
     const loginWithEmail = async (email, password) => {
         setLoading(true);
@@ -61,6 +164,7 @@ export const UserProvider = ({ children }) => {
         let success = true;
         try {
             await signInAnonymously(auth);
+            await ensureUserDataInitialized(auth.currentUser?.uid);
         } catch (error) {
             console.error("Error during anonymous login:", error.message);
             success = false;
@@ -76,6 +180,7 @@ export const UserProvider = ({ children }) => {
         const provider = new GoogleAuthProvider();
         try {
             await signInWithPopup(auth, provider);
+            await ensureUserDataInitialized(auth.currentUser?.uid);
         } catch (error) {
             console.error("Error during Google login:", error.message);
             success = false;
@@ -100,7 +205,11 @@ export const UserProvider = ({ children }) => {
         <UserContext.Provider
             value={{
                 user,
+                userData,
                 loading,
+                refreshUserData,
+                getUserData,
+                getUserDataWithUsername,
                 authLoading,
                 registerWithEmail,
                 loginWithEmail,
@@ -110,7 +219,7 @@ export const UserProvider = ({ children }) => {
             }}
         >
             {authLoading &&
-                <div className="fixed w-full h-screen z-[99999] bg-background/50 backdrop-blur-sm flex items-center justify-center">
+                <div className="fixed w-full h-screen z-[99999] bg-background/50 backdrop-blur-none flex items-center justify-center">
                     <Spinner size="xl" color="default" />
                 </div>
             }
