@@ -12,8 +12,10 @@ const Profile = () => {
     const { user, loading, userData, getUserDataWithUsername, logout } = useUser();
     const [profileData, setProfileData] = useState(null);
     const [profileDataLoading, setProfileDataLoading] = useState(true);
+    const [ownProfile, setOwnProfile] = useState(false);
 
     useEffect(() => {
+        if (loading) return;
         const retrieveUserData = async (_username) => {
             console.log("retrieving from server", _username);
             setProfileDataLoading(true);
@@ -21,22 +23,24 @@ const Profile = () => {
                 const data = await getUserDataWithUsername(_username);
                 if (data) {
                     setProfileData(data);
+                    console.log("user found in server " + data);
+                    return;
                 }
-                console.log("user not found " + _username);
+                console.log("user not found in server " + _username);
             } catch (error) {
                 console.error("Error fetching user data:", error);
             } finally {
                 setProfileDataLoading(false);
             }
         }
-        if (username) {
-            retrieveUserData(username);
-        } else {
+        if (!username || username === user.username) {
             setProfileDataLoading(true);
             if (userData) {
                 setProfileData(userData);
             }
             setProfileDataLoading(false);
+        } else {
+            retrieveUserData(username);
         }
         /*
          in case of 
@@ -46,6 +50,10 @@ const Profile = () => {
          profileData will be null
          */
     }, [userData, username, loading]);
+
+    useEffect(() => {
+        setOwnProfile(userData?.username === profileData?.username);
+    }, [profileData]);
 
     return (
         <>
@@ -107,20 +115,23 @@ const Profile = () => {
                                     <h2 className="font-bold">{user.displayName || "Display Name"}</h2>
                                     <p className="text-tiny text-foreground-500">{user.bio || "Bio"}.</p>
 
-                                    <div className="grid grid-cols-2 mt-2 gap-2">
-                                        <Button
-                                            size="sm"
-                                            className="font-bold"
-                                        >
-                                            Follow
-                                        </Button>
-                                        <Button
-                                            size="sm"
-                                            className="font-bold"
-                                        >
-                                            Message
-                                        </Button>
-                                    </div>
+                                    {!ownProfile && (
+
+                                        <div className="grid grid-cols-2 mt-2 gap-2">
+                                            <Button
+                                                size="sm"
+                                                className="font-bold"
+                                            >
+                                                Follow
+                                            </Button>
+                                            <Button
+                                                size="sm"
+                                                className="font-bold"
+                                            >
+                                                Message
+                                            </Button>
+                                        </div>
+                                    )}
 
                                 </div>
                             </div >

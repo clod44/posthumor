@@ -8,7 +8,7 @@ import {
     signInWithEmailAndPassword,
     onAuthStateChanged,
 } from "firebase/auth";
-import { runTransaction, doc, getDoc, setDoc } from "firebase/firestore";
+import { runTransaction, doc, getDoc, getDocs, collection, query, where } from "firebase/firestore";
 import { Spinner } from "@nextui-org/react";
 
 const UserContext = createContext();
@@ -75,11 +75,10 @@ export const UserProvider = ({ children }) => {
     };
 
     const getUserDataWithUsername = async (username) => {
-        const usersRef = collection(db, "users");
         try {
+            const usersRef = collection(db, "users");
             const q = query(usersRef, where("username", "==", username));
             const querySnapshot = await getDocs(q);
-
             if (!querySnapshot.empty) {
                 const userDoc = querySnapshot.docs[0];
                 const userData = userDoc.data();
