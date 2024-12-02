@@ -54,6 +54,10 @@ export const UserProvider = ({ children }) => {
      * @returns {Promise<object|null>} - The user data object with all properties or null if user is not found.
      */
     const getUserData = async (userId) => {
+        if (!userId) {
+            console.error("User ID is undefined or null");
+            return null;
+        }
         setLoading(true);
         const userRef = doc(db, "users", userId);
         try {
