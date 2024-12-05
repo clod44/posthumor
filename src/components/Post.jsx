@@ -18,22 +18,28 @@ const Post = ({ post }) => {
 
 
     useEffect(() => {
-        setIsLiked(post.likes.includes(user?.uid));
+        if (!post || !user) return;
+        setIsLiked(post.likes.includes(user.uid));
     }, [post?.likes, user?.uid]);
 
 
     const { likePost } = usePost();
     const handleLikePost = async () => {
         const currentLikedState = isLiked;
-        setIsLiked(!currentLikedState); // optimistically update the UI
-        console.log("isLiked prematurely changed to:", !currentLikedState);
-        const newLikedState = await likePost(post.uid);
-        if (newLikedState !== currentLikedState) {
-            setIsLiked(newLikedState); // confirm with server response if needed
+        let newLikedState = currentLikedState;
+        setIsLiked(!currentLikedState); //optimistically update the ui
+        console.log("client new:", isLiked);
+        try {
+            newLikedState = await likePost(post.uid);
+            console.log("server response:", isLiked);
+        } catch (error) {
+            newLikedState = currentLikedState;
+            console.error("Failed to like post:", error);
+        } finally {
+            setIsLiked(newLikedState);
+            console.log("isLiked", isLiked);
         }
-        console.log("isLiked data confirmed:", newLikedState);
     };
-
 
     useEffect(() => {
         const fetchUserData = async () => {
