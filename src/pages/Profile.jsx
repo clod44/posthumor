@@ -14,6 +14,7 @@ const Profile = () => {
     const [profileDataLoading, setProfileDataLoading] = useState(true);
     const [ownProfile, setOwnProfile] = useState(false);
 
+
     useEffect(() => {
         if (loading) return;
         const retrieveUserData = async (_username) => {
@@ -50,14 +51,14 @@ const Profile = () => {
          profileData will be null
          */
     }, [userData, username, loading]);
-
     useEffect(() => {
-        setOwnProfile(userData?.username === profileData?.username);
+        console.log("ownProfile", userData?.username, profileData?.username, userData?.username == profileData?.username);
+        setOwnProfile(userData?.username == profileData?.username);
     }, [profileData]);
 
     return (
         <>
-            <div className="w-full min-h-svh flex flex-col justify-start items-center">
+            <div className="w-full min-h-svh flex flex-col justify-start items-center overflow-hidden">
                 {(loading || profileDataLoading) ? (
                     <div className="w-full min-h-svh flex justify-center items-center">
                         <Spinner size="lg" color="default" />
@@ -80,31 +81,22 @@ const Profile = () => {
                                     <div className="col-span-3 flex flex-col text-center">
                                         <div className="flex justify-between items-center mb-2">
                                             <h2 className="font-bold text-xl sm:text-2xl  flex-grow">
-                                                {user.username || "Username"}
+                                                {userData?.username || "Username"}
                                             </h2>
-                                            <Button
-                                                isIconOnly
-                                                color="danger"
-                                                className="p-2"
-                                                variant="light"
-                                                onClick={logout}
-                                            >
-                                                <IoMdLogOut className="w-full h-full" />
-                                            </Button>
                                         </div>
                                         <div className="grid grid-cols-3 px-4">
                                             <div>
-                                                <p className="font-bold sm:text-2xl">{user.totalPosts || "0"}</p>
+                                                <p className="font-bold sm:text-2xl">{userData?.totalPosts || "0"}</p>
                                                 <p className="text-tiny text-foreground-200"> posts</p>
                                             </div>
 
                                             <div>
-                                                <p className="font-bold sm:text-2xl">{user.totalFollowers || "0"}</p>
+                                                <p className="font-bold sm:text-2xl">{userData?.totalFollowers || "0"}</p>
                                                 <p className="text-tiny text-foreground-200"> followers</p>
                                             </div>
 
                                             <div>
-                                                <p className="font-bold sm:text-2xl">{user.totalFollowing || "0"}</p>
+                                                <p className="font-bold sm:text-2xl">{userData?.totalFollowing || "0"}</p>
                                                 <p className="text-tiny text-foreground-200"> following</p>
                                             </div>
                                         </div>
@@ -112,11 +104,10 @@ const Profile = () => {
                                 </div>
                                 <div className="flex flex-col gap-2">
 
-                                    <h2 className="font-bold">{user.displayName || "Display Name"}</h2>
-                                    <p className="text-tiny text-foreground-500">{user.bio || "Bio"}.</p>
+                                    <h2 className="font-bold">{userData?.displayName || "Display Name"}</h2>
+                                    <p className="text-tiny text-foreground-500">{userData?.bio || "Bio"}.</p>
 
-                                    {!ownProfile && (
-
+                                    {!ownProfile ? (
                                         <div className="grid grid-cols-2 mt-2 gap-2">
                                             <Button
                                                 size="sm"
@@ -131,6 +122,16 @@ const Profile = () => {
                                                 Message
                                             </Button>
                                         </div>
+                                    ) : (
+                                        <Button
+                                            isIconOnly
+                                            color="danger"
+                                            className="p-2 ms-auto"
+                                            variant="light"
+                                            onClick={logout}
+                                        >
+                                            <IoMdLogOut className="w-full h-full" />
+                                        </Button>
                                     )}
 
                                 </div>

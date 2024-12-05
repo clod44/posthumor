@@ -15,9 +15,9 @@ const Home = () => {
     }, [])
 
     return (
-        <div className='flex flex-col items-center p-2 py-5 gap-5'>
-            {posts.map((post) => (
-                <Post key={post.id} post={post} />
+        <div className='grid grid-cols-1 items-center p-2 py-5 gap-5'>
+            {posts.map((post, index) => (
+                <Post key={index} post={post} />
             ))}
         </div>
     );

@@ -13,10 +13,12 @@ import Profile from './pages/Profile';
 import Settings from './pages/Settings';
 import NotFound from './pages/NotFound';
 
+import ScrollToTop from './components/ScrollToTop';
 function App() {
 
     return (
         <Router>
+            <ScrollToTop />
             <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/explore" element={<Explore />} />
