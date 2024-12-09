@@ -73,32 +73,32 @@ const Profile = () => {
                         <div className="w-full flex flex-col sm:w-1/2">
                             <div className="p-5 pb-0">
 
-                                <div className="grid grid-cols-4 mb-4 gap-4">
-                                    <Avatar
-                                        src={profileData.profilePicture}
-                                        className="rounded-full aspect-square h-full w-auto"
-                                    />
-                                    <div className="col-span-3 flex flex-col text-center">
-                                        <div className="flex justify-between items-center mb-2">
-                                            <h2 className="font-bold text-xl sm:text-2xl  flex-grow">
+                                <div className="flex gap-4 h-32 items-center mb-2">
+                                    <div className="flex-grow h-full aspect-square">
+                                        <Avatar
+                                            src={profileData.profilePicture}
+                                            className="rounded-full aspect-square h-full w-auto"
+                                        />
+                                    </div>
+                                    <div className="flex-grow grid grid-cols-3 gap-2 h-auto w-full">
+                                        <div className="col-span-3 overflow-hidden">
+                                            <h2 className="font-bold text-xl sm:text-2xl text-center flex-grow">
                                                 {userData?.username || "Username"}
                                             </h2>
                                         </div>
-                                        <div className="grid grid-cols-3 px-4">
-                                            <div>
-                                                <p className="font-bold sm:text-2xl">{userData?.totalPosts || "0"}</p>
-                                                <p className="text-tiny text-foreground-200"> posts</p>
-                                            </div>
+                                        <div>
+                                            <p className="font-bold sm:text-2xl text-center">{userData?.totalPosts || "0"}</p>
+                                            <p className="text-tiny text-foreground-200 text-center"> posts</p>
+                                        </div>
 
-                                            <div>
-                                                <p className="font-bold sm:text-2xl">{userData?.totalFollowers || "0"}</p>
-                                                <p className="text-tiny text-foreground-200"> followers</p>
-                                            </div>
+                                        <div>
+                                            <p className="font-bold sm:text-2xl text-center">{userData?.totalFollowers || "0"}</p>
+                                            <p className="text-tiny text-foreground-200 text-center"> followers</p>
+                                        </div>
 
-                                            <div>
-                                                <p className="font-bold sm:text-2xl">{userData?.totalFollowing || "0"}</p>
-                                                <p className="text-tiny text-foreground-200"> following</p>
-                                            </div>
+                                        <div>
+                                            <p className="font-bold sm:text-2xl text-center">{userData?.totalFollowing || "0"}</p>
+                                            <p className="text-tiny text-foreground-200 text-center"> following</p>
                                         </div>
                                     </div>
                                 </div>

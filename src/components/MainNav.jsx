@@ -1,8 +1,10 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Avatar, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Button } from '@nextui-org/react';
 import { IoIosChatboxes } from "react-icons/io";
 import { MdOutlineAddBox } from "react-icons/md";
 import { FaHome, FaSearch, FaAngleUp, FaBell, FaCog } from 'react-icons/fa';
+import { useEffect, useState } from 'react';
+
 
 const routes = [
     { path: "/", icon: <FaHome size={24} />, name: "Home", collapse: false },
@@ -15,6 +17,12 @@ const routes = [
 ];
 
 function MainNav() {
+    const location = useLocation();
+    const [currentRoute, setCurrentRoute] = useState(location.pathname);
+    useEffect(() => {
+        setCurrentRoute(location.pathname);
+    }, [location]);
+
     return (
         <div className='fixed bottom-0 left-0 w-full h-16 z-[99] bg-background'>
             <div className='flex justify-evenly items-center h-full w-full'>
@@ -27,7 +35,8 @@ function MainNav() {
                         isIconOnly
                         variant='light'
                         className={"p-2 flex-grow " +
-                            (collapse ? "hidden sm:flex" : "")
+                            (collapse ? " hidden sm:flex " : "") +
+                            (currentRoute === path ? " text-foreground " : " text-foreground-400 ")
                         }
                     >
                         {icon}

@@ -2,7 +2,6 @@ import { useUser } from "../context/UserContext";
 import { useState, useEffect } from "react";
 import { Avatar } from "@nextui-org/react";
 import { Link } from "react-router-dom";
-import { Button } from "@nextui-org/react";
 
 
 const PostComment = ({ comment }) => {
@@ -17,24 +16,18 @@ const PostComment = ({ comment }) => {
     }, []);
 
     return (
-        <div className="rounded-xl bg-default shadow p-4 pb-2">
-            <Button
-                as={Link}
+        <div className="rounded-xl border border-default shadow p-2 pb-2">
+            <Link
                 to={`/profile/${userData?.username}`}
-                className="w-full"
-                variant="light"
-                startContent={
-                    <Avatar
-                        src={userData?.profilePicture}
-                        className="rounded-full aspect-square h-full w-auto"
-                    />
-                }
+                className="grid grid-cols-12 grid-rows-1 items-center"
             >
-                <div className="flex-grow overflow-hidden">
-                    <span className="font-bold"> {userData?.username || ""}</span>
-                </div>
-            </Button>
-            <div className="ps-4">
+                <Avatar
+                    src={userData?.profilePicture}
+                    className="rounded-full aspect-square h-full w-auto col-span-1"
+                />
+                <span className="col-span-11 w-full h-full px-2 overflow-hidden">{userData?.username || ""}</span>
+            </Link>
+            <div className="ps-8 my-2">
                 <span className="text-foreground-600">{comment?.text}</span>
             </div>
             <div className="flex justify-end">

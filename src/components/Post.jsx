@@ -53,7 +53,7 @@ const Post = ({ post }) => {
 
     // post.imageUrl is the public ID
     //fallback id is image not found image id
-    const cloudinaryImage = useMemo(() => cld.image(post?.imageUrl ?? "fallback_image_id"), [post?.imageUrl]);
+    const cloudinaryImage = useMemo(() => cld.image(post?.imageUrl ?? "notfound"), [post?.imageUrl]);
 
     return (
         <>
@@ -65,7 +65,9 @@ const Post = ({ post }) => {
             />
 
             <div className="overflow-hidden max-w-[400px] mx-auto w-full">
-                <div className="flex items-center gap-2 p-2">
+
+                {/*TOP BAR*/}
+                <div className="flex items-center gap-2 p-2 pe-0">
                     <Avatar size="sm" src={userData?.profilePictureUrl} />
                     <p className="flex-grow font-bold text-small">{userData?.displayName}</p>
                     <Button isIconOnly size="sm" className="p-2" variant="light">
@@ -73,21 +75,25 @@ const Post = ({ post }) => {
                     </Button>
                 </div>
 
+                {/*POST IMAGE*/}
                 <div className="w-full h-full overflow-hidden">
                     <PostImage cloudinaryImage={cloudinaryImage} />
                 </div>
+
+                {/*ACTION BAR*/}
                 <div className="px-2 py-1">
-                    <div className="flex justify-between items-center">
+                    <div className="grid grid-cols-7 grid-rows-1 grid-flow-col place-items-center">
                         <Button
                             size="sm"
-                            className="p-2 px-0"
+                            className="p-2 px-0 col-span-1"
                             variant="light"
                             color={isLiked ? "danger" : "default"}
                             startContent={
-                                isLiked ?
+                                isLiked ? (
                                     <FaHeart className="w-auto h-full aspect-square" />
-                                    :
+                                ) : (
                                     <FaRegHeart className="w-auto h-full aspect-square" />
+                                )
                             }
                             onClick={handleLikePost}
                         >
@@ -95,7 +101,7 @@ const Post = ({ post }) => {
                         </Button>
                         <Button
                             size="sm"
-                            className="p-2 px-0"
+                            className="p-2 px-0 col-span-1"
                             variant="light"
                             startContent={<FaRegComment className="w-auto h-full aspect-square" />}
                             onClick={onCommentsOpen}
@@ -106,23 +112,23 @@ const Post = ({ post }) => {
                         <Button
                             isIconOnly
                             size="sm"
-                            className="p-2 px-0"
+                            className="p-2 px-0 col-span-1"
                             variant="light"
                             startContent={<FiSend className="w-auto h-full aspect-square" />}
                         />
 
-                        <div className="flex-grow" />
+                        <div className="col-span-3 h-full w-full" />
 
                         <Button
                             isIconOnly
                             size="sm"
-                            className="p-2"
+                            className="p-2 col-span-1"
                             variant="light"
                             startContent={<FaRegBookmark className="w-auto h-full aspect-square" />}
                         />
                     </div>
 
-                    <div className="p-2">
+                    <div className="py-0">
                         <p className="text-small">
                             <Link
                                 to={`/profile/${userData?.username}`}
