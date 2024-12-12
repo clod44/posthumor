@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import Post from '../components/Post';
-import { usePost } from '../context/PostContext';
+import { usePosts } from '../hooks/useServices';
 const Home = () => {
 
-    const { getAllPosts } = usePost();
+    const { getAllPosts } = usePosts();
     const [posts, setPosts] = useState([]);
     useEffect(() => {
         const fetchPosts = async () => {

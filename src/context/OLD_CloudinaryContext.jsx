@@ -1,8 +1,12 @@
-import { createContext, useState } from 'react';
+import { createContext, useContext, useState } from 'react';
 import { Cloudinary } from '@cloudinary/url-gen';
 import axios from 'axios';
 
-export const CloudinaryContext = createContext();
+const CloudinaryContext = createContext();
+
+export const useCloudinary = () => {
+    return useContext(CloudinaryContext);
+};
 
 export const cld = new Cloudinary({
     cloud: {

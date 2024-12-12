@@ -1,30 +1,10 @@
 import { Button } from "@nextui-org/react"
-import { PiSmileyFill, PiSmileyMeltingFill } from "react-icons/pi";
 import { FcGoogle } from "react-icons/fc";
 import { BsIncognito } from "react-icons/bs";
-
-import { useUser } from "../context/UserContext.jsx";
+import { useAuth } from "../hooks/useServices";
 
 const Login = () => {
-    const { anonymousLogin, loginWithEmail, registerWithEmail, googlePopupLogin } = useUser();
-
-
-
-
-    const handleEmailLogin = async (values) => {
-        const success = await loginWithEmail(values.email, values.password);
-        if (success) {
-            console.log("Logged in as", values.email);
-        }
-    };
-
-
-    const handleEmailRegister = async (values) => {
-        const success = await registerWithEmail(values.email, values.password);
-        if (success) {
-            console.log("Registered as", values.email);
-        }
-    };
+    const { anonymousLogin, googlePopupLogin } = useAuth();
 
     const handleGoogleLogin = async () => {
         const success = await googlePopupLogin();

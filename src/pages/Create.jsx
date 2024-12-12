@@ -2,11 +2,10 @@ import { useState } from 'react';
 import { Textarea, Button, Image, Progress } from '@nextui-org/react';
 import { MdAddPhotoAlternate } from "react-icons/md";
 import { FiSend } from "react-icons/fi";
-import { usePost } from '../context/PostContext';
-import { useCloudinary } from '../context/CloudinaryContext';
+import { usePosts, useCloudinary } from '../hooks/useServices';
 
 const Create = () => {
-    const { createPost } = usePost();
+    const { createPost } = usePosts();
     const { uploadImage, uploadProgress } = useCloudinary();
 
     const [selectedFile, setSelectedFile] = useState(null);

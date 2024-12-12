@@ -2,8 +2,7 @@ import { Avatar, Button, useDisclosure } from "@nextui-org/react";
 import { IoMdMore } from "react-icons/io";
 import { FiSend } from "react-icons/fi";
 import { FaRegHeart, FaHeart, FaRegComment, FaRegBookmark } from "react-icons/fa";
-import { useUser } from "../context/UserContext";
-import { usePost } from "../context/PostContext";
+import { useAuth, useUser, usePosts } from "../hooks/useServices"
 import { useEffect, useState, useMemo } from "react";
 import { cld } from "../context/CloudinaryContext";
 import PostImage from "./PostImage";
@@ -11,19 +10,20 @@ import PostComments from "./PostComments";
 import { Link } from "react-router-dom";
 
 const Post = ({ post }) => {
-    const { user, getUserData } = useUser();
-    const [userData, setUserData] = useState(null);
+    const { authUser } = useAuth();
+    const { fetchUserProfile } = useUser();
+    const [userProfile, setUserProfile] = useState(null);
     const [isLiked, setIsLiked] = useState(false);
     const { isOpen: isCommentsOpen, onOpen: onCommentsOpen, onOpenChange: onCommentsOpenChange } = useDisclosure();
 
 
     useEffect(() => {
-        if (!post || !user) return;
-        setIsLiked(post.likes.includes(user.uid));
-    }, [post?.likes, user?.uid]);
+        if (!post || !authUser) return;
+        setIsLiked(post.likes.includes(authUser.uid));
+    }, [post?.likes, authUser?.uid]);
 
 
-    const { likePost } = usePost();
+    const { likePost } = usePosts();
     const handleLikePost = async () => {
         const currentLikedState = isLiked;
         let newLikedState = currentLikedState;
@@ -43,8 +43,8 @@ const Post = ({ post }) => {
 
     useEffect(() => {
         const fetchUserData = async () => {
-            const userData = await getUserData(post.useruid);
-            setUserData(userData);
+            const userProfile = await fetchUserProfile({ uid: post.useruid });
+            setUserProfile(userProfile);
         };
         fetchUserData();
     }, [post.useruid]);
@@ -68,8 +68,8 @@ const Post = ({ post }) => {
 
                 {/*TOP BAR*/}
                 <div className="flex items-center gap-2 p-2 pe-0">
-                    <Avatar size="sm" src={userData?.profilePictureUrl} />
-                    <p className="flex-grow font-bold text-small">{userData?.displayName}</p>
+                    <Avatar size="sm" src={userProfile?.profilePictureUrl} />
+                    <p className="flex-grow font-bold text-small">{userProfile?.displayName}</p>
                     <Button isIconOnly size="sm" className="p-2" variant="light">
                         <IoMdMore className="w-full h-full" />
                     </Button>
@@ -131,9 +131,9 @@ const Post = ({ post }) => {
                     <div className="py-0">
                         <p className="text-small">
                             <Link
-                                to={`/profile/${userData?.username}`}
+                                to={`/profile/${userProfile?.username}`}
                             >
-                                <span className="font-bold me-2">{userData?.username}</span>
+                                <span className="font-bold me-2">{userProfile?.username}</span>
                             </Link>
                             {post?.text}
                         </p>

@@ -1,29 +1,41 @@
-import { useUser } from "../context/UserContext";
+import { useEffect, useState } from "react";
+import { useAuth, useUser } from "../hooks/useServices";
 import { IoMdLogOut } from "react-icons/io";
-import { Avatar, Button, Tab, Tabs, Spinner } from "@nextui-org/react";
+import { Avatar, Button, Tab, Tabs } from "@nextui-org/react";
 import GridGallery from "../components/GridGallery";
 import { MdGridOn } from "react-icons/md";
 import { FaBookmark } from "react-icons/fa6";
 import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
 
 const Profile = () => {
     const { username } = useParams();
-    const { user, loading, userData, getUserDataWithUsername, logout } = useUser();
-    const [profileData, setProfileData] = useState(null);
-    const [profileDataLoading, setProfileDataLoading] = useState(true);
-    const [ownProfile, setOwnProfile] = useState(false);
+    const { authUser, logout } = useAuth();
+    const { userProfile, fetchUserProfile } = useUser();
+    const [currentProfile, setCurrentProfile] = useState(null);
+    const [currentProfileLoading, setCurrentProfileLoading] = useState(false);
+    const [isOwnProfile, setIsOwnProfile] = useState(false);
 
+    /*
+    authUser - firebase user object
+    userProfile - user profile object that holds the logged in user's data
+    currentProfile - current profile page's account data
+    */
 
     useEffect(() => {
-        if (loading) return;
+        if (!currentProfile || !userProfile) return;
+        console.log("isOwnProfile", userProfile?.username, currentProfile?.username, userProfile?.username == currentProfile?.username);
+        setIsOwnProfile(userProfile?.username == currentProfile?.username);
+    }, [currentProfile]);
+
+    useEffect(() => {
+        if (currentProfileLoading) return;
         const retrieveUserData = async (_username) => {
+            setCurrentProfileLoading(true);
             console.log("retrieving from server", _username);
-            setProfileDataLoading(true);
             try {
-                const data = await getUserDataWithUsername(_username);
+                const data = await fetchUserProfile({ username: _username });
                 if (data) {
-                    setProfileData(data);
+                    setCurrentProfile(data);
                     console.log("user found in server " + data);
                     return;
                 }
@@ -31,15 +43,13 @@ const Profile = () => {
             } catch (error) {
                 console.error("Error fetching user data:", error);
             } finally {
-                setProfileDataLoading(false);
+                setCurrentProfileLoading(false);
             }
         }
-        if (!username || username === user.username) {
-            setProfileDataLoading(true);
-            if (userData) {
-                setProfileData(userData);
-            }
-            setProfileDataLoading(false);
+        if (!username || username === authUser.username) {
+            setCurrentProfileLoading(true);
+            setCurrentProfile(userProfile);
+            setCurrentProfileLoading(false);
         } else {
             retrieveUserData(username);
         }
@@ -50,24 +60,21 @@ const Profile = () => {
          wrong username
          profileData will be null
          */
-    }, [userData, username, loading]);
-    useEffect(() => {
-        console.log("ownProfile", userData?.username, profileData?.username, userData?.username == profileData?.username);
-        setOwnProfile(userData?.username == profileData?.username);
-    }, [profileData]);
+    }, [userProfile, username, authUser]);
+
 
     return (
         <>
             <div className="w-full min-h-svh flex flex-col justify-start items-center overflow-hidden">
-                {(loading || profileDataLoading) ? (
-                    <div className="w-full min-h-svh flex justify-center items-center">
-                        <Spinner size="lg" color="default" />
+                {(currentProfileLoading) ? (
+                    <div className="w-full h-full flex justify-center items-center">
+                        <p>Loading...</p>
                     </div>
                 ) : (
-                    (!profileData) ? (
+                    (!currentProfile) ? (
                         <div className="w-full h-full flex justify-center items-center">
-                            <p>User not found</p>
-                            <Button onClick={logout}>Try To log out</Button>
+                            <p>User not found. try reloading or logging out</p>
+                            <Button onClick={logout}>log out</Button>
                         </div>
                     ) : (
                         <div className="w-full flex flex-col sm:w-1/2">
@@ -76,38 +83,38 @@ const Profile = () => {
                                 <div className="flex gap-4 h-32 items-center mb-2">
                                     <div className="flex-grow h-full aspect-square">
                                         <Avatar
-                                            src={profileData.profilePicture}
+                                            src={currentProfile.profilePicture}
                                             className="rounded-full aspect-square h-full w-auto"
                                         />
                                     </div>
                                     <div className="flex-grow grid grid-cols-3 gap-2 h-auto w-full">
                                         <div className="col-span-3 overflow-hidden">
                                             <h2 className="font-bold text-xl sm:text-2xl text-center flex-grow">
-                                                {userData?.username || "Username"}
+                                                {currentProfile?.username || "Username"}
                                             </h2>
                                         </div>
                                         <div>
-                                            <p className="font-bold sm:text-2xl text-center">{userData?.totalPosts || "0"}</p>
+                                            <p className="font-bold sm:text-2xl text-center">{currentProfile?.totalPosts || "0"}</p>
                                             <p className="text-tiny text-foreground-200 text-center"> posts</p>
                                         </div>
 
                                         <div>
-                                            <p className="font-bold sm:text-2xl text-center">{userData?.totalFollowers || "0"}</p>
+                                            <p className="font-bold sm:text-2xl text-center">{currentProfile?.totalFollowers || "0"}</p>
                                             <p className="text-tiny text-foreground-200 text-center"> followers</p>
                                         </div>
 
                                         <div>
-                                            <p className="font-bold sm:text-2xl text-center">{userData?.totalFollowing || "0"}</p>
+                                            <p className="font-bold sm:text-2xl text-center">{currentProfile?.totalFollowing || "0"}</p>
                                             <p className="text-tiny text-foreground-200 text-center"> following</p>
                                         </div>
                                     </div>
                                 </div>
                                 <div className="flex flex-col gap-2">
 
-                                    <h2 className="font-bold">{userData?.displayName || "Display Name"}</h2>
-                                    <p className="text-tiny text-foreground-500">{userData?.bio || "Bio"}.</p>
+                                    <h2 className="font-bold">{currentProfile?.displayName || "Display Name"}</h2>
+                                    <p className="text-tiny text-foreground-500">{currentProfile?.bio || "Bio"}.</p>
 
-                                    {!ownProfile ? (
+                                    {!isOwnProfile ? (
                                         <div className="grid grid-cols-2 mt-2 gap-2">
                                             <Button
                                                 size="sm"
@@ -145,13 +152,13 @@ const Profile = () => {
                                     key="posts"
                                     title={<MdGridOn className="text-xl" />}
                                 >
-                                    <GridGallery user={user} showOverlay={false} />
+                                    <GridGallery user={authUser} showOverlay={false} />
                                 </Tab>
                                 <Tab
                                     key="saved"
                                     title={<FaBookmark className="text-xl" />}
                                 >
-                                    <GridGallery user={user} showOverlay={false} />
+                                    <GridGallery user={authUser} showOverlay={false} />
                                 </Tab>
                             </Tabs>
                         </div >

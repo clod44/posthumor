@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from 'react';
+import { createContext } from 'react';
 import { db } from '../config/firebase';
 import {
     serverTimestamp,
@@ -14,31 +14,24 @@ import {
     orderBy,
     Timestamp,
 } from 'firebase/firestore';
-import { useUser } from '../context/UserContext';
+import { useAuth } from "../hooks/useServices";
+import { postSchema } from '../utils/schemas';
+import { validateData } from '../utils/validateData';
 
-const PostContext = createContext();
+export const PostsContext = createContext();
 
-export const usePost = () => {
-    return useContext(PostContext);
-};
+export const PostsProvider = ({ children }) => {
+    const { authUser } = useAuth();
 
-export const PostProvider = ({ children }) => {
-    const { user } = useUser();
     const createPost = async (data) => {
-        if (!user) {
+        if (!authUser) {
             console.error("No user logged in. Post could not be created.");
             return;
-        };
+        }
         try {
+            const validatedData = await validateData({ ...data, useruid: authUser.uid }, postSchema);
             const newPostRef = doc(collection(db, "posts"));
-            await setDoc(newPostRef, {
-                imageUrl: data.imageUrl || "",
-                text: data.text || "",
-                timestamp: serverTimestamp(),
-                useruid: user.uid || "UNKNOWN",
-                likes: [],
-                comments: [],
-            });
+            await setDoc(newPostRef, validatedData);
             console.log('Post created successfully');
             return newPostRef.id; //uid
         } catch (error) {
@@ -47,13 +40,14 @@ export const PostProvider = ({ children }) => {
         }
     };
 
-
     const getPost = async (postuid) => {
         try {
             const postRef = doc(db, "posts", postuid);
             const postDoc = await getDoc(postRef);
+
             if (postDoc.exists()) {
-                return postDoc.data();
+                const validatedData = await validateData(postDoc.data(), postSchema);
+                return { ...validatedData, uid: postDoc.id };
             } else {
                 console.log('Post not found');
                 return null;
@@ -70,7 +64,7 @@ export const PostProvider = ({ children }) => {
             const querySnapshot = await getDocs(postsQuery);
             const posts = [];
             querySnapshot.forEach((doc) => {
-                posts.push({ ...doc.data(), uid: doc.id });
+                posts.push({ ...doc.data(), postuid: doc.id });
             });
             return posts;
         } catch (error) {
@@ -89,7 +83,7 @@ export const PostProvider = ({ children }) => {
             const querySnapshot = await getDocs(postsQuery);
             const posts = [];
             querySnapshot.forEach((doc) => {
-                posts.push({ ...doc.data(), uid: doc.id });
+                posts.push({ ...doc.data(), postuid: doc.id });
             });
             return posts;
         } catch (error) {
@@ -99,8 +93,8 @@ export const PostProvider = ({ children }) => {
     };
 
     const likePost = async (postuid) => {
-        if (!user || !postuid) {
-            console.error("No user logged in or postuid not provided.", user, postuid);
+        if (!authUser || !postuid) {
+            console.error("No user logged in or postuid not provided.");
             return false;
         }
         try {
@@ -112,18 +106,14 @@ export const PostProvider = ({ children }) => {
             }
             const postData = postSnapshot.data();
             const likes = postData.likes || [];
-            console.log("postFound")
-
-            if (likes.includes(user.uid)) {
-                // User already liked the post, remove their like
+            if (likes.includes(authUser.uid)) {
                 await updateDoc(postRef, {
-                    likes: arrayRemove(user.uid),
+                    likes: arrayRemove(authUser.uid),
                 });
                 return false;
             } else {
-                // User has not liked the post, add their like
                 await updateDoc(postRef, {
-                    likes: arrayUnion(user.uid),
+                    likes: arrayUnion(authUser.uid),
                 });
                 return true;
             }
@@ -133,55 +123,17 @@ export const PostProvider = ({ children }) => {
         }
     };
 
-
-
-    const addComment = async (postuid, commentText) => {
-        if (!user || !postuid || !commentText) {
-            console.error("No user logged in or postuid not provided or commentText is empty.");
-            return false;
-        }
-        console.log("Adding comment...", postuid, commentText);
-        try {
-            const postRef = doc(db, "posts", postuid);
-            const postSnap = await getDoc(postRef);
-            if (!postSnap.exists()) {
-                console.error('Post does not exist');
-                return false;
-            }
-
-            const commentData = {
-                useruid: user.uid,
-                text: commentText,
-                timestamp: Timestamp.now(),
-            };
-
-            console.log("Attempting to update Firestore document...");
-
-            await updateDoc(postRef, {
-                comments: arrayUnion(commentData),
-            });
-
-            console.log('Comment added successfully');
-            return true;
-        } catch (error) {
-            console.error('Error adding comment:', error);
-            return false;
-        }
-    };
-
-
     return (
-        <PostContext.Provider
+        <PostsContext.Provider
             value={{
                 createPost,
                 getPost,
                 getUserPosts,
                 getAllPosts,
                 likePost,
-                addComment,
             }}
         >
             {children}
-        </PostContext.Provider>
+        </PostsContext.Provider>
     );
 };

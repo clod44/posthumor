@@ -1,231 +1,97 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import { auth, db } from "../config/firebase";
-import {
-    GoogleAuthProvider,
-    signInWithPopup,
-    signInAnonymously,
-    createUserWithEmailAndPassword,
-    signInWithEmailAndPassword,
-    onAuthStateChanged,
-} from "firebase/auth";
-import { runTransaction, doc, getDoc, getDocs, collection, query, where } from "firebase/firestore";
-import { Spinner } from "@nextui-org/react";
+import { createContext, useEffect, useState } from "react";
+import { db } from "../config/firebase";
+import { runTransaction, doc, getDoc, query, where, collection, limit } from "firebase/firestore";
+import { useAuth } from "../hooks/useServices";
 
-const UserContext = createContext();
-
-export const useUser = () => useContext(UserContext);
+export const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
-    const [userData, setUserData] = useState(null);
+    const [userProfile, setUserProfile] = useState(null);
     const [loading, setLoading] = useState(false);
-    const [authLoading, setAuthLoading] = useState(true);
+    const { authUser } = useAuth();
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-            setUser(currentUser);
-            setAuthLoading(false);
-        });
-        return () => unsubscribe();
-    }, []);
-
-    useEffect(() => {
-        if (user) {
-            refreshUserData();
+        if (authUser) {
+            ensureUserProfileExists(authUser.uid);
+            refreshUserProfile();
         }
-    }, [user]);
+    }, [authUser]);
 
-    /**
-     * fetch updated userData of logged-in user.
-     * updates the userData state.
-     */
-    const refreshUserData = async () => {
-        if (!user) {
+    const refreshUserProfile = async () => {
+        if (!authUser) {
             console.log("No user logged in. userData could not be refreshed.");
             return;
         };
-        const data = await getUserData(user.uid);
-        setUserData(data);
+        const data = await fetchUserProfile({ uid: authUser.uid });
+        setUserProfile(data);
         console.log(data)
     };
 
-    /**
-     * @param {string} userId - The unique identifier of the user.
-     * @returns {Promise<object|null>} - The user data object with all properties or null if user is not found.
-     */
-    const getUserData = async (userId) => {
-        if (!userId) {
-            console.error("User ID is undefined or null");
-            return null;
+    const fetchUserProfile = async ({ uid, username }) => {
+        if (!uid && !username) {
+            throw new Error('Either uuid or username must be provided');
         }
-        setLoading(true);
-        const userRef = doc(db, "users", userId);
+        let userQuery;
+        if (uid) {
+            userQuery = doc(db, 'users', uid);
+        } else if (username) {
+            userQuery = query(
+                collection(db, 'users'),
+                where('username', '==', username),
+                limit(1)
+            );
+        }
         try {
-            const userDoc = await getDoc(userRef);
-            if (userDoc.exists()) {
-                const userData = userDoc.data();
-                const uid = userDoc.id;
-                return { ...userData, uid };
-            } else {
-                console.log("User not found.");
-                return null;
+            const snapshot = await getDoc(userQuery);
+            if (!snapshot.exists()) {
+                throw new Error("User not found >" + (uid ?? username) + "<");
             }
+            return snapshot.data();
         } catch (error) {
-            console.error("Error fetching user data:", error);
-            return null;
-        } finally {
-            setLoading(false);
+            console.error('Error fetching user profile:', error);
+            throw error;
         }
     };
 
-    const getUserDataWithUsername = async (username) => {
-        try {
-            const usersRef = collection(db, "users");
-            const q = query(usersRef, where("username", "==", username));
-            const querySnapshot = await getDocs(q);
-            if (!querySnapshot.empty) {
-                const userDoc = querySnapshot.docs[0];
-                const userData = userDoc.data();
-                const uid = userDoc.id;
-                return { ...userData, uid };
-            } else {
-                console.log("User not found.");
-                return null;
-            }
-        } catch (error) {
-            console.error("Error fetching user data by username:", error);
-            return null;
-        }
-    };
-
-
-    /**
-     * if needed, creates initial userData in the database
-     * @param {string} userId
-     */
-    const ensureUserDataInitialized = async (userId) => {
-        console.log("Initializing user data..." + userId);
-        const userRef = doc(db, "users", userId);
+    const ensureUserProfileExists = async (useruid) => {
+        console.log("Initializing user data for user UID:", useruid);
+        const userRef = doc(db, "users", useruid);
         try {
             await runTransaction(db, async (transaction) => {
                 const userDoc = await transaction.get(userRef);
 
-                if (userDoc.exists()) {
-                    return;
+                if (!userDoc.exists()) {
+                    const newUserData = {
+                        bio: "",
+                        displayName: "User",
+                        profilePicture: "",
+                        totalFollowers: 0,
+                        totalFollowing: 0,
+                        totalPosts: 0,
+                        username: useruid.slice(0, 6),
+                    };
+                    transaction.set(userRef, newUserData);
                 }
-
-                const newUserData = {
-                    bio: "",
-                    displayName: "User",
-                    profilePicture: "",
-                    totalFollowers: 0,
-                    totalFollowing: 0,
-                    totalPosts: 0,
-                    username: userId,
-                };
-                transaction.set(userRef, newUserData);
             });
         } catch (error) {
             console.error("Error initializing user data:", error);
-            alert("Error initializing user data: " + error.message);
         }
     };
 
-
-    const registerWithEmail = async (email, password) => {
-        setLoading(true);
-        let success = true;
-        try {
-            await createUserWithEmailAndPassword(auth, email, password);
-            await ensureUserDataInitialized(auth.currentUser?.uid);
-        } catch (error) {
-            console.error("Error during registration:", error.message);
-            success = false;
-        } finally {
-            setLoading(false);
-            return success;
-        }
-    };
-
-
-    const loginWithEmail = async (email, password) => {
-        setLoading(true);
-        let success = true;
-        try {
-            await signInWithEmailAndPassword(auth, email, password);
-        } catch (error) {
-            console.error("Error during login:", error.message);
-            success = false;
-        } finally {
-            setLoading(false);
-            return success;
-        }
-    };
-
-    const anonymousLogin = async () => {
-        setLoading(true);
-        let success = true;
-        try {
-            await signInAnonymously(auth);
-            await ensureUserDataInitialized(auth.currentUser?.uid);
-        } catch (error) {
-            console.error("Error during anonymous login:", error.message);
-            success = false;
-        } finally {
-            setLoading(false);
-            return success;
-        }
-    };
-
-    const googlePopupLogin = async () => {
-        setLoading(true);
-        let success = true;
-        const provider = new GoogleAuthProvider();
-        try {
-            await signInWithPopup(auth, provider);
-            await ensureUserDataInitialized(auth.currentUser?.uid);
-        } catch (error) {
-            console.error("Error during Google login:", error.message);
-            success = false;
-        } finally {
-            setLoading(false);
-            return success;
-        }
-    };
-
-    const logout = async () => {
-        setLoading(true);
-        try {
-            await auth.signOut();
-        } catch (error) {
-            console.error("Error during logout:", error.message);
-        } finally {
-            setLoading(false);
-        }
+    const updateUserProfile = async (data) => {
+        throw new Error('Not implemented');
     };
 
     return (
         <UserContext.Provider
             value={{
-                user,
-                userData,
+                userProfile,
                 loading,
-                refreshUserData,
-                getUserData,
-                getUserDataWithUsername,
-                authLoading,
-                registerWithEmail,
-                loginWithEmail,
-                anonymousLogin,
-                googlePopupLogin,
-                logout
+                fetchUserProfile,
+                refreshUserProfile,
+                updateUserProfile,
             }}
         >
-            {authLoading &&
-                <div className="fixed w-full h-screen z-[99999] bg-background/50 backdrop-blur-none flex items-center justify-center">
-                    <Spinner size="xl" color="default" />
-                </div>
-            }
             {children}
         </UserContext.Provider>
     );

@@ -1,16 +1,16 @@
-import { useUser } from "../context/UserContext";
+import { useUser } from "../hooks/useServices";
 import { useState, useEffect } from "react";
 import { Avatar } from "@nextui-org/react";
 import { Link } from "react-router-dom";
 
 
 const PostComment = ({ comment }) => {
-    const { getUserData, loading } = useUser();
-    const [userData, setUserData] = useState(null);
+    const { fetchUserProfile, loading } = useUser();
+    const [userProfile, setUserProfile] = useState(null);
     useEffect(() => {
         const fetchUserData = async () => {
-            const userData = await getUserData(comment.useruid);
-            setUserData(userData);
+            const userProfile = await fetchUserProfile({ uid: comment.useruid });
+            setUserProfile(userProfile);
         };
         fetchUserData();
     }, []);
@@ -18,14 +18,14 @@ const PostComment = ({ comment }) => {
     return (
         <div className="rounded-xl border border-default shadow p-2 pb-2">
             <Link
-                to={`/profile/${userData?.username}`}
+                to={`/profile/${userProfile?.username}`}
                 className="grid grid-cols-12 grid-rows-1 items-center"
             >
                 <Avatar
-                    src={userData?.profilePicture}
+                    src={userProfile?.profilePicture}
                     className="rounded-full aspect-square h-full w-auto col-span-1"
                 />
-                <span className="col-span-11 w-full h-full px-2 overflow-hidden">{userData?.username || ""}</span>
+                <span className="col-span-11 w-full h-full px-2 overflow-hidden">{userProfile?.username || ""}</span>
             </Link>
             <div className="ps-8 my-2">
                 <span className="text-foreground-600">{comment?.text}</span>

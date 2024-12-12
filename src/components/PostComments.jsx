@@ -1,7 +1,7 @@
+import { useState } from "react";
 import { Textarea, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button } from "@nextui-org/react";
 import { FiSend } from "react-icons/fi";
-import { usePost } from "../context/PostContext";
-import { useState } from "react";
+import { useComments } from "../hooks/useServices";
 import PostComment from "./PostComment";
 
 
@@ -13,7 +13,7 @@ const PostComments = ({
     ...props
 }) => {
 
-    const { addComment } = usePost();
+    const { createComment } = useComments();
     const [commentText, setCommentText] = useState('');
     const handleAddComment = async () => {
         if (commentText.trim() === '') return;
