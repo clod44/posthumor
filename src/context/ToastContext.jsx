@@ -7,7 +7,18 @@ export const ToastContext = createContext();
 export const ToastProvider = ({ children }) => {
     return (
         <ToastContext.Provider value={toast}>
-            <ToastContainer />
+            <ToastContainer
+                position="top-center"
+                autoClose={3000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover={false}
+                theme="dark"
+            />
             {children}
         </ToastContext.Provider>
     );
