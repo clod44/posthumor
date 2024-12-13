@@ -16,12 +16,10 @@ const Post = ({ post }) => {
     const [isLiked, setIsLiked] = useState(false);
     const { isOpen: isCommentsOpen, onOpen: onCommentsOpen, onOpenChange: onCommentsOpenChange } = useDisclosure();
 
-
     useEffect(() => {
         if (!post || !authUser) return;
         setIsLiked(post.likes.includes(authUser.uid));
     }, [post?.likes, authUser?.uid]);
-
 
     const { likePost } = usePosts();
     const handleLikePost = async () => {
@@ -49,12 +47,9 @@ const Post = ({ post }) => {
         fetchUserData();
     }, [post.useruid]);
 
-
-
     // post.imageUrl is the public ID
     //fallback id is image not found image id
     const cloudinaryImage = useMemo(() => cld.image(post?.imageUrl ?? "notfound"), [post?.imageUrl]);
-
     return (
         <>
             <PostComments
@@ -63,9 +58,7 @@ const Post = ({ post }) => {
                 postuid={post.uid}
                 comments={post.comments}
             />
-
             <div className="overflow-hidden max-w-[400px] mx-auto w-full">
-
                 {/*TOP BAR*/}
                 <div className="flex items-center gap-2 p-2 pe-0">
                     <Avatar size="sm" src={userProfile?.profilePictureUrl} />
@@ -74,18 +67,16 @@ const Post = ({ post }) => {
                         <IoMdMore className="w-full h-full" />
                     </Button>
                 </div>
-
                 {/*POST IMAGE*/}
                 <div className="w-full h-full overflow-hidden">
                     <PostImage cloudinaryImage={cloudinaryImage} />
                 </div>
-
                 {/*ACTION BAR*/}
                 <div className="px-2 py-1">
                     <div className="grid grid-cols-7 grid-rows-1 grid-flow-col place-items-center">
                         <Button
                             size="sm"
-                            className="p-2 px-0 col-span-1"
+                            className="p-1.5 px-0 col-span-1"
                             variant="light"
                             color={isLiked ? "danger" : "default"}
                             startContent={
@@ -101,33 +92,29 @@ const Post = ({ post }) => {
                         </Button>
                         <Button
                             size="sm"
-                            className="p-2 px-0 col-span-1"
+                            className="p-1.5 px-0 col-span-1"
                             variant="light"
                             startContent={<FaRegComment className="w-auto h-full aspect-square" />}
                             onClick={onCommentsOpen}
                         >
                             {post?.comments?.length || ""}
                         </Button>
-
                         <Button
                             isIconOnly
                             size="sm"
-                            className="p-2 px-0 col-span-1"
+                            className="p-1.5 px-0 col-span-1"
                             variant="light"
                             startContent={<FiSend className="w-auto h-full aspect-square" />}
                         />
-
                         <div className="col-span-3 h-full w-full" />
-
                         <Button
                             isIconOnly
                             size="sm"
-                            className="p-2 col-span-1"
+                            className="p-1.5 col-span-1"
                             variant="light"
                             startContent={<FaRegBookmark className="w-auto h-full aspect-square" />}
                         />
                     </div>
-
                     <div className="py-0">
                         <p className="text-small">
                             <Link
