@@ -14,7 +14,7 @@ import {
     orderBy,
     Timestamp,
 } from 'firebase/firestore';
-import { useAuth } from "../hooks/useServices";
+import { useAuth, useToast } from "../hooks/useServices";
 import { postSchema } from '../utils/schemas';
 import { validateData } from '../utils/validateData';
 
@@ -22,17 +22,19 @@ export const PostsContext = createContext();
 
 export const PostsProvider = ({ children }) => {
     const { authUser } = useAuth();
+    const toast = useToast();
 
     const createPost = async (data) => {
         if (!authUser) {
-            console.error("No user logged in. Post could not be created.");
-            return;
+            toast.error("No user logged in. Post could not be created.");
+            throw new Error("No user logged in. Post could not be created.");
         }
         try {
             const validatedData = await validateData({ ...data, useruid: authUser.uid }, postSchema);
             const newPostRef = doc(collection(db, "posts"));
             await setDoc(newPostRef, validatedData);
             console.log('Post created successfully');
+            toast.success("Post created successfully");
             return newPostRef.id; //uid
         } catch (error) {
             console.error('Error creating post:', error);
@@ -50,10 +52,12 @@ export const PostsProvider = ({ children }) => {
                 return { ...validatedData, uid: postDoc.id };
             } else {
                 console.log('Post not found');
+                toast.error('Post not found');
                 return null;
             }
         } catch (error) {
             console.error('Error fetching post:', error);
+            toast.error('Error fetching post');
             return null;
         }
     };
@@ -64,11 +68,12 @@ export const PostsProvider = ({ children }) => {
             const querySnapshot = await getDocs(postsQuery);
             const posts = [];
             querySnapshot.forEach((doc) => {
-                posts.push({ ...doc.data(), postuid: doc.id });
+                posts.push({ ...doc.data(), uid: doc.id });
             });
             return posts;
         } catch (error) {
             console.error('Error fetching user posts:', error);
+            toast.error('Error fetching user posts');
             return [];
         }
     };
@@ -83,18 +88,20 @@ export const PostsProvider = ({ children }) => {
             const querySnapshot = await getDocs(postsQuery);
             const posts = [];
             querySnapshot.forEach((doc) => {
-                posts.push({ ...doc.data(), postuid: doc.id });
+                posts.push({ ...doc.data(), uid: doc.id });
             });
             return posts;
         } catch (error) {
             console.error('Error fetching all posts:', error);
+            toast.error('Error fetching all posts');
             return [];
         }
     };
 
     const likePost = async (postuid) => {
         if (!authUser || !postuid) {
-            console.error("No user logged in or postuid not provided.");
+            toast.error("You need to be logged in to like a post.");
+            throw new Error("No user logged in or postuid not provided.");
             return false;
         }
         try {

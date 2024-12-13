@@ -1,20 +1,34 @@
 import { createContext, useEffect, useState } from "react";
 import { db } from "../config/firebase";
 import { runTransaction, doc, getDoc, getDocs, query, where, collection, limit } from "firebase/firestore";
-import { useAuth } from "../hooks/useServices";
+import { useAuth, useToast } from "../hooks/useServices";
 
 export const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
     const [userProfile, setUserProfile] = useState(null);
     const [loading, setLoading] = useState(false);
-    const { authUser } = useAuth();
+    const { authUser, loading: authUserLoading } = useAuth();
+    const toast = useToast();
 
     useEffect(() => {
-        if (authUser) {
-            ensureUserProfileExists(authUser.uid);
-            refreshUserProfile();
-        }
+        const loadProfile = async () => {
+            if (authUser && !authUserLoading) {
+                setLoading(true);
+                try {
+                    await ensureUserProfileExists(authUser.uid);
+                    await refreshUserProfile();
+                } catch (error) {
+                    console.error("Error fetching user profile:", error);
+                } finally {
+                    setLoading(false);
+                }
+            } else {
+                setUserProfile(null);
+                setLoading(false);
+            }
+        };
+        loadProfile();
     }, [authUser]);
 
     const refreshUserProfile = async () => {

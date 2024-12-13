@@ -12,13 +12,11 @@ const PostComments = ({
     postuid,
     ...props
 }) => {
-
     const { createComment } = useComments();
     const [commentText, setCommentText] = useState('');
-    const handleAddComment = async () => {
-        if (commentText.trim() === '') return;
-        const result = await addComment(postuid, commentText);
-        console.log(result);
+    const handleCreateComment = async () => {
+        if (commentText.trim().length === 0 || !postuid) return;
+        const result = await createComment(postuid, commentText);
         setCommentText('');
     }
     return (
@@ -59,7 +57,7 @@ const PostComments = ({
                                 />
 
                                 <Button
-                                    onPress={handleAddComment}
+                                    onPress={handleCreateComment}
                                     className="h-full"
                                     isIconOnly
                                 >
