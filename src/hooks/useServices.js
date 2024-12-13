@@ -6,7 +6,7 @@ import { UserContext } from "../context/UserContext";
 import { CommentsContext } from "../context/CommentsContext";
 import { PostsContext } from "../context/PostsContext";
 
-export const toast = () => useContext(ToastContext); //i want to toast("something")
+export const useToast = () => useContext(ToastContext);
 export const useAuth = () => useContext(AuthContext);
 export const useCloudinary = () => useContext(CloudinaryContext);
 export const useUser = () => useContext(UserContext);
