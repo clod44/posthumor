@@ -19,9 +19,9 @@ const PostImage = memo(({ cloudinaryImage }) => {
 
     return (
         <div
+            className={`w-full h-full ${imageLoaded ? "" : "animate-pulse aspect-square"}`}
             style={{
                 width: "100%",
-                paddingTop: imageLoaded ? "0" : "100%",
                 overflow: "hidden",
             }}
         >
@@ -35,7 +35,7 @@ const PostImage = memo(({ cloudinaryImage }) => {
                 onLoad={handleImageLoaded}
                 onError={handleImageError}
                 plugins={[
-                    lazyload({ rootMargin: "10px 20px 10px 30px", threshold: 0.25 }),
+                    lazyload({ rootMargin: "0px 0px 0px 0px", threshold: 0.01 }),
                     responsive({ steps: [800, 1000, 1400] }),
                     placeholder({ mode: "blur" }),
                 ]}
