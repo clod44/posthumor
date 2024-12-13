@@ -1,6 +1,6 @@
 import { createContext, useEffect, useState } from "react";
 import { db } from "../config/firebase";
-import { runTransaction, doc, getDoc, query, where, collection, limit } from "firebase/firestore";
+import { runTransaction, doc, getDoc, getDocs, query, where, collection, limit } from "firebase/firestore";
 import { useAuth } from "../hooks/useServices";
 
 export const UserContext = createContext();
@@ -29,24 +29,28 @@ export const UserProvider = ({ children }) => {
 
     const fetchUserProfile = async ({ uid, username }) => {
         if (!uid && !username) {
-            throw new Error('Either uuid or username must be provided');
+            throw new Error('Either uid or username must be provided');
         }
-        let userQuery;
-        if (uid) {
-            userQuery = doc(db, 'users', uid);
-        } else if (username) {
-            userQuery = query(
-                collection(db, 'users'),
-                where('username', '==', username),
-                limit(1)
-            );
-        }
+
         try {
-            const snapshot = await getDoc(userQuery);
-            if (!snapshot.exists()) {
-                throw new Error("User not found >" + (uid ?? username) + "<");
+            if (uid) {
+                const userDoc = await getDoc(doc(db, 'users', uid));
+                if (!userDoc.exists()) {
+                    throw new Error(`User not found with uid: ${uid}`);
+                }
+                return userDoc.data();
+            } else if (username) {
+                const userQuery = query(
+                    collection(db, 'users'),
+                    where('username', '==', username),
+                    limit(1)
+                );
+                const querySnapshot = await getDocs(userQuery);
+                if (querySnapshot.empty) {
+                    throw new Error(`User not found with username: ${username}`);
+                }
+                return querySnapshot.docs[0].data();
             }
-            return snapshot.data();
         } catch (error) {
             console.error('Error fetching user profile:', error);
             throw error;
