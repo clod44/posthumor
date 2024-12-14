@@ -2,7 +2,7 @@ import { Avatar, Button, useDisclosure } from "@nextui-org/react";
 import { IoMdMore } from "react-icons/io";
 import { FiSend } from "react-icons/fi";
 import { FaRegHeart, FaHeart, FaRegComment, FaRegBookmark } from "react-icons/fa";
-import { useAuth, useUser, usePosts } from "../hooks/useServices"
+import { useAuth, useUser, usePosts } from "../hooks/useServices";
 import { useEffect, useState, useMemo } from "react";
 import { cld } from "../context/CloudinaryContext";
 import PostImage from "./PostImage";
@@ -14,6 +14,7 @@ const Post = ({ post }) => {
     const { fetchUserProfile } = useUser();
     const [userProfile, setUserProfile] = useState(null);
     const [isLiked, setIsLiked] = useState(false);
+    const [comments, setComments] = useState(post?.comments || []); //for clientside updating
     const { isOpen: isCommentsOpen, onOpen: onCommentsOpen, onOpenChange: onCommentsOpenChange } = useDisclosure();
 
     useEffect(() => {
@@ -41,8 +42,13 @@ const Post = ({ post }) => {
 
     useEffect(() => {
         const fetchUserData = async () => {
-            const userProfile = await fetchUserProfile({ uid: post.useruid });
-            setUserProfile(userProfile);
+            try {
+                const userProfile = await fetchUserProfile({ uid: post.useruid });
+                setUserProfile(userProfile);
+            } catch (error) {
+                console.error("Error fetching user profile:", error);
+                setUserProfile(null);
+            }
         };
         fetchUserData();
     }, [post.useruid]);
@@ -56,7 +62,8 @@ const Post = ({ post }) => {
                 isOpen={isCommentsOpen}
                 onOpenChange={onCommentsOpenChange}
                 postuid={post.uid}
-                comments={post.comments}
+                comments={comments}
+                setComments={setComments}
             />
             <div className="overflow-hidden max-w-[400px] mx-auto w-full">
                 {/*TOP BAR*/}

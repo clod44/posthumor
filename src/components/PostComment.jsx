@@ -2,6 +2,7 @@ import { useUser } from "../hooks/useServices";
 import { useState, useEffect } from "react";
 import { Avatar } from "@nextui-org/react";
 import { Link } from "react-router-dom";
+import { Timestamp } from "firebase/firestore";
 
 
 const PostComment = ({ comment }) => {
@@ -9,10 +10,15 @@ const PostComment = ({ comment }) => {
     const [userProfile, setUserProfile] = useState(null);
     useEffect(() => {
         const fetchUserData = async () => {
-            const userProfile = await fetchUserProfile({ uid: comment.useruid });
-            setUserProfile(userProfile);
+            try {
+                const userProfile = await fetchUserProfile({ uid: comment.useruid });
+                setUserProfile(userProfile);
+            } catch (error) {
+                console.error("Error fetching user profile:", error);
+            }
         };
         fetchUserData();
+        console.log(comment)
     }, []);
 
     return (
@@ -31,9 +37,13 @@ const PostComment = ({ comment }) => {
                 <span className="text-foreground-600">{comment?.text}</span>
             </div>
             <div className="flex justify-end">
-                <span className="text-foreground-400 text-xs">{comment?.timestamp?.toDate().toLocaleString() || ""}</span>
+                <span className="text-foreground-400 text-xs">
+                    {comment?.timestamp instanceof Timestamp
+                        ? comment.timestamp.toDate().toLocaleString()
+                        : ""}
+                </span>
             </div>
-        </div>
+        </div >
     );
 };
 
