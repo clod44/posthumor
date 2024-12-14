@@ -7,9 +7,14 @@ const Home = () => {
     const [posts, setPosts] = useState([]);
     useEffect(() => {
         const fetchPosts = async () => {
-            const posts = await getAllPosts();
-            console.log("posts", posts);
-            setPosts(posts);
+            try {
+                const posts = await getAllPosts();
+                console.log("posts", posts);
+                setPosts(posts);
+            } catch (error) {
+                console.error('Error fetching posts:', error);
+                setPosts([]);
+            }
         };
         fetchPosts();
     }, [])
