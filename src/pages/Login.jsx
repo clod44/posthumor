@@ -5,21 +5,20 @@ import { useAuth } from "../hooks/useServices";
 
 const Login = () => {
     const { anonymousLogin, googlePopupLogin } = useAuth();
-
     const handleGoogleLogin = async () => {
-        const success = await googlePopupLogin();
-        if (success) {
-            console.log("Logged in with google");
+        try {
+            await googlePopupLogin();
+        } catch (error) {
+            console.error("Error during Google login:", error.message);
         }
     };
-
     const handleAnonymousLogin = async () => {
-        const success = await anonymousLogin();
-        if (success) {
-            console.log("Logged in anoymously");
+        try {
+            await anonymousLogin();
+        } catch (error) {
+            console.error("Error during anonymous login:", error.message);
         }
     };
-
     return (
         <div className="h-lvh flex flex-col justify-center items-center">
             <div className="flex gap-2">
@@ -42,10 +41,7 @@ const Login = () => {
                     <BsIncognito className="w-full h-full" />
                 </Button>
             </div>
-
-
         </div>
-
     );
 }
 
