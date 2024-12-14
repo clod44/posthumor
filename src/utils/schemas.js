@@ -3,6 +3,7 @@ import { serverTimestamp } from 'firebase/firestore';
 //UID needs to be attached to data before usage
 
 export const postSchema = Yup.object({
+    uid: Yup.string().optional(),
     text: Yup.string().default(""),
     imageUrl: Yup.string().required(),
     useruid: Yup.string().required(),
@@ -12,6 +13,7 @@ export const postSchema = Yup.object({
 });
 
 export const commentSchema = Yup.object().shape({
+    uid: Yup.string().optional(),
     useruid: Yup.string().required(),
     text: Yup.string().min(1, 'Comment text must not be empty').required(),
     timestamp: Yup.mixed().default(() => serverTimestamp()),
