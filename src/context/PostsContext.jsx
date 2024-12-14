@@ -1,7 +1,6 @@
 import { createContext } from 'react';
 import { db } from '../config/firebase';
 import {
-    serverTimestamp,
     collection,
     doc,
     setDoc,
@@ -12,7 +11,6 @@ import {
     updateDoc,
     arrayUnion,
     orderBy,
-    Timestamp,
 } from 'firebase/firestore';
 import { useAuth, useToast } from "../hooks/useServices";
 import { postSchema } from '../utils/schemas';
@@ -58,7 +56,7 @@ export const PostsProvider = ({ children }) => {
         } catch (error) {
             console.error('Error fetching post:', error);
             toast.error('Error fetching post');
-            return null;
+            return error;
         }
     };
 
@@ -74,7 +72,7 @@ export const PostsProvider = ({ children }) => {
         } catch (error) {
             console.error('Error fetching user posts:', error);
             toast.error('Error fetching user posts');
-            return [];
+            throw error;
         }
     };
 
@@ -93,23 +91,23 @@ export const PostsProvider = ({ children }) => {
             return posts;
         } catch (error) {
             console.error('Error fetching all posts:', error);
-            toast.error('Error fetching all posts');
-            return [];
+            toast.error('Error fetching public posts');
+            throw error;
         }
     };
 
     const likePost = async (postuid) => {
-        if (!authUser || !postuid) {
-            toast.error("You need to be logged in to like a post.");
-            throw new Error("No user logged in or postuid not provided.");
-            return false;
+        if (!authUser) {
+            throw new Error("You need to be logged in to like a post.");
+        }
+        if (!postuid) {
+            throw new Error("Missing postuid.");
         }
         try {
             const postRef = doc(db, "posts", postuid);
             const postSnapshot = await getDoc(postRef);
             if (!postSnapshot.exists()) {
-                console.error("Post not found");
-                return false;
+                throw new Error("Post not found");
             }
             const postData = postSnapshot.data();
             const likes = postData.likes || [];
@@ -126,9 +124,10 @@ export const PostsProvider = ({ children }) => {
             }
         } catch (error) {
             console.error("Error updating likes:", error);
-            return false;
+            throw error;
         }
     };
+
 
     return (
         <PostsContext.Provider
