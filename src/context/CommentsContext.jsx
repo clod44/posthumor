@@ -15,13 +15,15 @@ export const CommentsContext = createContext();
 
 export const CommentsProvider = ({ children }) => {
     const { authUser } = useAuth();
-    const { toast } = useToast();
+    const toast = useToast();
 
     const createComment = async (postuid, commentText) => {
         if (!authUser || !postuid || !commentText) {
             toast.error("Missing user, postuid, or commentText.");
             throw new Error("Missing user, postuid, or commentText.");
         }
+        let success = true;
+        const toastId = toast("Sharing comment...", { autoClose: false, isLoading: true });
         try {
             const postRef = doc(db, "posts", postuid);
             const postSnap = await getDoc(postRef);
@@ -37,12 +39,18 @@ export const CommentsProvider = ({ children }) => {
             await updateDoc(postRef, {
                 comments: arrayUnion(validatedComment),
             });
-            toast.success('Comment added successfully');
             return true;
         } catch (error) {
-            toast.error('Error adding comment');
+            success = false;
             console.error('Error adding comment:', error);
-            return false;
+            throw error;
+        } finally {
+            toast.update(toastId, {
+                render: success ? "Comment shared successfully." : "Failed to share comment.",
+                isLoading: false,
+                type: success ? "success" : "error",
+                autoClose: 2000,
+            });
         }
     };
     return (
