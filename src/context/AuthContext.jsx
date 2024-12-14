@@ -69,7 +69,7 @@ export const AuthProvider = ({ children }) => {
 
     const logout = async () => {
         const toastId = toast("Logging out...", { autoClose: false, isLoading: true });
-        const success = true;
+        let success = true;
         setLoading(true);
         try {
             await auth.signOut();

@@ -15,7 +15,6 @@ import NotFound from './pages/NotFound';
 
 import ScrollToTop from './components/ScrollToTop';
 function App() {
-
     return (
         <Router>
             <ScrollToTop />
