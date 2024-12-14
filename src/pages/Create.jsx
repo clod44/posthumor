@@ -27,22 +27,26 @@ const Create = () => {
         }
 
         setLoading(true);
-
-        const imageUrl = await uploadImage(selectedFile);
-        if (!imageUrl) {
-            alert("Failed to upload image.");
+        try {
+            const imageUrl = await uploadImage(selectedFile);
+            if (!imageUrl) {
+                alert("Failed to upload image.");
+                setLoading(false);
+                return;
+            }
+            await createPost({
+                text: postText,
+                imageUrl: imageUrl,
+            });
             setLoading(false);
-            return;
+            setPostText('');
+            setSelectedFile(null);
+        } catch (error) {
+            console.error("Error creating post:", error);
+        } finally {
+            setLoading(false);
         }
 
-        await createPost({
-            text: postText,
-            imageUrl: imageUrl,
-        });
-
-        setLoading(false);
-        setPostText('');
-        setSelectedFile(null);
     };
 
     return (
