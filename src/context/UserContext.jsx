@@ -33,19 +33,22 @@ export const UserProvider = ({ children }) => {
 
     const refreshUserProfile = async () => {
         if (!authUser) {
-            console.log("No user logged in. userData could not be refreshed.");
+            console.log("No user logged in. userProfile could not be refreshed.");
             return;
         };
-        const data = await fetchUserProfile({ uid: authUser.uid });
-        setUserProfile(data);
-        console.log(data)
+        try {
+            const data = await fetchUserProfile({ uid: authUser.uid });
+            setUserProfile(data);
+        } catch (error) {
+            console.error("Error fetching user profile:", error);
+            setUserProfile(null);
+        }
     };
 
     const fetchUserProfile = async ({ uid, username }) => {
         if (!uid && !username) {
             throw new Error('Either uid or username must be provided');
         }
-
         try {
             if (uid) {
                 const userDoc = await getDoc(doc(db, 'users', uid));
@@ -72,9 +75,9 @@ export const UserProvider = ({ children }) => {
     };
 
     const ensureUserProfileExists = async (useruid) => {
-        console.log("Initializing user data for user UID:", useruid);
-        const userRef = doc(db, "users", useruid);
         try {
+            console.log("Initializing user data for user UID:", useruid);
+            const userRef = doc(db, "users", useruid);
             await runTransaction(db, async (transaction) => {
                 const userDoc = await transaction.get(userRef);
 
@@ -93,6 +96,7 @@ export const UserProvider = ({ children }) => {
             });
         } catch (error) {
             console.error("Error initializing user data:", error);
+            throw error;
         }
     };
 
